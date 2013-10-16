@@ -24,10 +24,16 @@ void *get_in_addr(struct sockaddr *sa) {
 
 int main(int argc, char *argv[]) {
     int sockfd, numbytes; 
-    char buf[MAXDATASIZE];
+    char buf[MAXDATASIZE], port[15];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
+	int porttab[10];
+	int a, i;  // petle
+	
+	for (a = 0; a < 10; a++) {
+	   porttab[a] = 3483 + a;
+	}	   
     
     if (argc != 2) {
         fprintf(stderr,"usage: client hostname\n");
@@ -37,8 +43,10 @@ int main(int argc, char *argv[]) {
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    
-    if ((rv = getaddrinfo(argv[1], PORT, &hints, &servinfo)) != 0) {
+    for (i = 0; i < 10; i++) {
+		sprintf(port, "%d", porttab[i]);
+
+    if ((rv = getaddrinfo(argv[1], port, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }
@@ -63,7 +71,8 @@ int main(int argc, char *argv[]) {
     
     if (p == NULL) {
         fprintf(stderr, "client: failed to connect\n");
-        return 2;
+       // return 2;
+		continue;
     }
     
     inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
@@ -78,6 +87,7 @@ int main(int argc, char *argv[]) {
      buf[numbytes] = '\0';
      printf("client: received '%s'\n",buf);
      close(sockfd);
-     
+	}
+
      return 0;
 }
