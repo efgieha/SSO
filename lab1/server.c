@@ -28,12 +28,12 @@ void *get_in_addr(struct sockaddr *sa) {
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
 	int sockfd, new_fd; // nasluch na sockfd, nowe polaczenie na new_fd
 	struct addrinfo hints, *servinfo, *p;
 	struct sockaddr_storage their_addr;
-	socklen_t, sin_size;
+	socklen_t sin_size;
 	struct sigaction sa;
 	int yes = 1;
 	char s[INET6_ADDRSTRLEN];
@@ -44,7 +44,7 @@ int main() {
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // ip_kompa
 
-	if ((rv = getaddrinfo(NULL, PORT, &hints, &servinfo)) != 0) {
+	if ((rv = getaddrinfo(NULL, argv[1], &hints, &servinfo)) != 0) {
 		fprintf(stderr, "getinfoaddr: %s \n", gai_strerror(rv));
 		return 1;
 	}
@@ -84,7 +84,7 @@ int main() {
 	}
 
 	sa.sa_handler = sigchld_handler;  // czysci procesy zombie
-	sigemptyset(&sa_mask);
+	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART;
 	if (sigaction(SIGCHLD, &sa, NULL) == -1) {
 		perror("sigcation");
@@ -113,7 +113,7 @@ int main() {
 		}
 
 		close(new_fd);
+	}
 
 	return 0;
 }
-
